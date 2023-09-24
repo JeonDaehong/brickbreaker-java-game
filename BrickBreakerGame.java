@@ -8,8 +8,6 @@ import java.util.Random;
 
 public class BrickBreakerGame extends JPanel implements ActionListener, KeyListener {
 
-    boolean Q_LearningStatus = false;
-
     private Timer timer;
     private int ballX = 150;
     private int ballY = 300;
@@ -44,74 +42,14 @@ public class BrickBreakerGame extends JPanel implements ActionListener, KeyListe
     private int[] healthPackDirectionY; // 공격 방향 Y 좌표 배열
 
 
-    // Q Learning
-    private double[][] qTable;  // Q-테이블 (상태-행동 쌍에 대한 Q-값 저장)
-    private int currentState;   // 현재 상태 (게임의 상태를 숫자로 표현)
-
-    private final double learningRate = 0.1;  // 학습률
-    private final double discountFactor = 0.9;  // 할인 계수
-    private final double explorationRate = 0.2;  // 탐험 비율 (탐욕적 선택을 위한 확률)
-
-    private final int numActions = 2;
-
-    /**
-     * Q Learning
-     */
-    // Q-값 업데이트 함수 (Q-Learning 알고리즘)
-    private void updateQValue(int state, int action, double reward, int nextState) {
-        double maxQ = getMaxQValue(nextState);
-        double currentQ = qTable[state][action];
-        double newQ = currentQ + learningRate * (reward + discountFactor * maxQ - currentQ);
-        qTable[state][action] = newQ;
-    }
-
-    // 탐욕적인 행동 선택 함수
-    private int selectGreedyAction(int state) {
-        int bestAction = 0;
-        double bestQValue = qTable[state][0];
-
-        for (int action = 1; action < numActions; action++) {
-            double qValue = qTable[state][action];
-            if (qValue > bestQValue) {
-                bestQValue = qValue;
-                bestAction = action;
-            }
-        }
-
-        return bestAction;
-    }
-
-    // 무작위 행동 선택 함수 (탐험)
-    private int selectRandomAction() {
-        return (int) (Math.random() * numActions);
-    }
-
-    // Q-값 중 최대값을 찾는 함수
-    private double getMaxQValue(int state) {
-        double maxQ = qTable[state][0];
-        for (int action = 1; action < numActions; action++) {
-            double qValue = qTable[state][action];
-            if (qValue > maxQ) {
-                maxQ = qValue;
-            }
-        }
-        return maxQ;
-    }
-
-
-
     public BrickBreakerGame() {
 
         // 게임 시작 메뉴
-        String[] options = {"게임 시작", "강화학습 시키기", "게임 종료"};
+        String[] options = {"게임 시작", "게임 종료"};
         int choice = JOptionPane.showOptionDialog(null, "원하는 옵션을 선택하세요:", "게임 메뉴", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
         if (choice == 0) { // "게임 시작"을 선택한 경우
-            Q_LearningStatus = false;
             startGame();
-        } else if (choice == 1) { // "강화학습 시키기"를 선택한 경우
-            Q_LearningStatus = true;
-            startGame(); // 강화학습 코드를 실행
         } else { // "게임 종료"를 선택한 경우
             System.exit(0);
         }
